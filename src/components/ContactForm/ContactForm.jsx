@@ -4,28 +4,27 @@ import {Formik, Form, Field, ErrorMessage} from 'formik'
 import { nanoid } from 'nanoid'
 import * as Yup from "yup";
 
+import { addContact } from "../../redux/contactsSlice";
+import { useDispatch } from "react-redux";
 
-
-const initialValues = {
-    name: '',
-    number: '',
-}
 
 const contactFormSchema = Yup.object().shape({
     name: Yup.string().min(3, "Too Short!").max(50, "Too Long!").required("Required"),
-    number: Yup.number().required("Required")
+    phone: Yup.number().required("Required")
 });
 
+export default function ContactForm () {
+    const dispatch = useDispatch();
 
-export default function ContactForm ({onAdd}) {
     const handleSubmit = (values, actions)=> {
         values.id = nanoid();
-        onAdd(values);
+        const {name, phone} = values;
+        dispatch(addContact(name, phone));
         actions.resetForm();
     }
 
     return (<div>
-        <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={contactFormSchema}>
+        <Formik initialValues={{ name: "", phone: "" }} onSubmit={handleSubmit} validationSchema={contactFormSchema}>
             <Form className={css.form}>
                 <div className={css.inputBox}>
                     <label htmlFor="username" className={css.label}>Name</label>
@@ -34,8 +33,8 @@ export default function ContactForm ({onAdd}) {
                 </div>
                 <div  className={css.inputBox}>
                     <label htmlFor="phone" className={css.label}>Phone number</label>
-                    <Field type='tel' name='number' id='phone' className={css.phoneInput}></Field>
-                    <ErrorMessage name='number' component='span' className={css.error}/>
+                    <Field type='tel' name='phone' id='phone' className={css.phoneInput}></Field>
+                    <ErrorMessage name='phone' component='span' className={css.error}/>
                 </div>
                 
                 <button type='submit' className={css.btnAdd}>Add contact</button>
